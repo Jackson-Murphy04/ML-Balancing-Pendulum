@@ -23,6 +23,7 @@ class Cart {
     update() {
         this.#move();
         this.polygon = this.#createPolygon();
+        this.middle = this.#calculateMiddle();
     }
 
     #move() {
@@ -33,12 +34,6 @@ class Cart {
         if(this.controls.right) {
             this.speed += this.acceleration;
         }
-
-        /*
-        if(!this.controls.left && !this.controls.right) {
-            this.speed = 0;
-        }
-*/
 
         //apply friction
         if(this.speed < 0) {
@@ -92,6 +87,14 @@ class Cart {
             y: this.y + this.height
         });
         return points;
+    }
+
+    #calculateMiddle() {
+        const middle = [];
+        const x = this.x + (this.width / 2);
+        const y = this.y + (this.height / 2);
+        middle.push({x: x, y: y});
+        return middle;
     }
 
     draw(ctx) {

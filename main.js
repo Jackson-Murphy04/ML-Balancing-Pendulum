@@ -23,8 +23,11 @@ window.addEventListener("resize", () => {
     ctx.fillRect(canvas.width / 2 - railWidth / 2, canvas.height / 2 - railHeight / 2, railWidth, railHeight);
 });
 
-//initialize pendulum cart and draw
+//initialize pendulum cart
 const cart = new Cart(canvas.width / 2 - railWidth * 0.1 / 2, railTop - railHeight * 0.25, railWidth * 0.1, railHeight * 1.5, railMin, railMax);
+
+//initialize pendulum
+const pendulum = new Pendulum((canvas.height / 2) * .6, (canvas.height / 2) * .6 * .1, canvas.width / 2, railTop + railHeight / 2, Math.PI / 4);
 
 // Start the animation loop
 animate();
@@ -36,10 +39,13 @@ function animate() {
     ctx.fillStyle = "black";
     ctx.fillRect(railMin, railTop, railWidth, railHeight);
     
-    // Update and draw the cart
+    // Update and draw the cart and pendulum
     cart.update();
+    pendulum.update(cart.middle);
     ctx.save();
     cart.draw(ctx);
+    pendulum.draw(ctx);
     ctx.restore();
     requestAnimationFrame(animate);
+
 }
