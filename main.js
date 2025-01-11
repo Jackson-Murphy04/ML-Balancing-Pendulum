@@ -41,7 +41,7 @@ function animate() {
     
     // Update and draw the cart and pendulum
     cart.update();
-    pendulum.update(cart.middle);
+    pendulum.update(cart.middle, cart.speed);
     ctx.save();
     cart.draw(ctx);
     pendulum.draw(ctx);

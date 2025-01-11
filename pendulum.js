@@ -13,13 +13,24 @@ class Pendulum {
         this.bobX;
         this.bobY;
         this.gravity = 1;
+
+        this.acceleration = 0;
     }
 
-    update(middle) {
+    update(middle, speed) {
         //update pendulum force based on gravity value and angle
         this.force = this.gravity * Math.sin(this.angle);
         //calculate angle accel
         this.angleA = (-1 * this.force) / this.length;
+        this.acceleration = 0;
+        if (speed > 0) {
+            this.acceleration += 1;
+        }
+        if (speed < 0) {
+            this.acceleration -= 1;
+        }
+        //calculate angle accel (including cart's effect)
+        this.angleA = (-1 * this.force) / this.length + (this.acceleration * Math.cos(this.angle)) / this.length;
         //calculate angle velocity
         this.angleV += this.angleA;
         this.angle += this.angleV;
