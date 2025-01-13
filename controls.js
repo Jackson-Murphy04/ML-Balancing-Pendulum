@@ -1,10 +1,12 @@
 
 class Controls {
-    constructor() {
+    constructor(type) {
         this.left = false;
         this.right = false;
 
-        this.#addKeyboardListeners();
+        if(type != "AI") {
+            this.#addKeyboardListeners();
+        }
     }
 
     //add keyboard listeners

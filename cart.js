@@ -1,5 +1,5 @@
 class Cart {
-    constructor(x, y, width, height, minX, maxX) {
+    constructor(x, y, width, height, minX, maxX, control) {
         //basic location and size attributes
         this.x = x;
         this.y = y;
@@ -17,13 +17,21 @@ class Cart {
         this.maxX = maxX;
 
         //controls
-        this.controls = new Controls();
+        if (control == "AI") {
+            this.brain = new NeuralNetwork([2, 6, 6, 6, 2]);
+        }
+        this.controls = new Controls(control);
     }
 
     update() {
         this.#move();
         this.polygon = this.#createPolygon();
         this.middle = this.#calculateMiddle();
+        if(this.brain) {
+            const outputs = NeuralNetwork.feedForward([this.x, pendulum.bobY], this.brain);
+            this.controls.left = outputs[0];
+            this.controls.right = outputs[1];
+        }
     }
 
     #move() {
