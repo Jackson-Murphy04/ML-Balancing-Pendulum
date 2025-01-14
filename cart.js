@@ -23,12 +23,12 @@ class Cart {
         this.controls = new Controls(control);
     }
 
-    update() {
+    update(number) {
         this.#move();
         this.polygon = this.#createPolygon();
         this.middle = this.#calculateMiddle();
         if(this.brain) {
-            const outputs = NeuralNetwork.feedForward([this.x, pendulum.bobY], this.brain);
+            const outputs = NeuralNetwork.feedForward([this.x, pendulums[number].bobY], this.brain);
             this.controls.left = outputs[0];
             this.controls.right = outputs[1];
         }
@@ -105,8 +105,14 @@ class Cart {
         return middle;
     }
 
-    draw(ctx) {
-        ctx.fillStyle = "red";
+    draw(ctx, color = "red") {
+        if (color == "blue") {
+            ctx.fillStyle = "blue";
+            ctx.strokeStyle = "blue";
+            ctx.globalAlpha = 1;
+        } else {
+            ctx.fillStyle = "red";
+        }
         //draw based on polygon points
         ctx.beginPath();
         ctx.moveTo(this.polygon[0].x, this.polygon[0].y);

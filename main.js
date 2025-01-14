@@ -24,10 +24,55 @@ window.addEventListener("resize", () => {
 });
 
 //initialize pendulum cart
-const cart = new Cart(canvas.width / 2 - railWidth * 0.1 / 2, railTop - railHeight * 0.25, railWidth * 0.1, railHeight * 1.5, railMin, railMax, "AI");
+//const cart = new Cart(canvas.width / 2 - railWidth * 0.1 / 2, railTop - railHeight * 0.25, railWidth * 0.1, railHeight * 1.5, railMin, railMax, "AI");
 
 //initialize pendulum
-const pendulum = new Pendulum((canvas.height / 2) * .6, (canvas.height / 2) * .6 * .1, canvas.width / 2, railTop + railHeight / 2, Math.PI / 4);
+//const pendulum = new Pendulum((canvas.height / 2) * .6, (canvas.height / 2) * .6 * .1, canvas.width / 2, railTop + railHeight / 2, Math.PI / 4);
+
+const carts = [];
+const pendulums = [];
+initCarts(1000);
+
+function initCarts(total) {
+    for (let i = 0; i < total; i++) {
+        const cart = new Cart(canvas.width / 2 - railWidth * 0.1 / 2, railTop - railHeight * 0.25, railWidth * 0.1, railHeight * 1.5, railMin, railMax, "AI");
+        const pendulum = new Pendulum((canvas.height / 2) * .6, (canvas.height / 2) * .6 * .1, canvas.width / 2, railTop + railHeight / 2, Math.PI / 4);
+        carts.push(cart);
+        pendulums.push(pendulum);
+    }
+    return;
+}
+
+function fitness(pendulum) {
+    if (pendulum.bobY < (canvas.height / 2)) {
+        pendulum.score += (pendulum.bobY - canvas.height) * -1 * 10;
+    }
+    if (pendulum.bobY > (canvas.height / 2) - 10 && pendulum.bobY > (canvas.height / 2) + 10) {
+        if (pendulum.score > 1000) {
+            pendulum.score -= pendulum.cross * 100;
+            pendulum.cross += 1;
+        }
+        if (pendulum.score < 0) {
+            pendulum.score = 100;
+        }
+    }
+}
+
+function getBest() {
+    let high = 0; 
+    let index = 0;
+    for (let i = 0; i < carts.length; i++) {
+        if(pendulums[i].score > high) {
+            high = pendulums[i].score;
+            index = i;
+        }
+    }
+    return index;
+}
+
+function restart(best) {
+    
+}
 
 // Start the animation loop
 animate();
@@ -39,13 +84,23 @@ function animate() {
     ctx.fillStyle = "black";
     ctx.fillRect(railMin, railTop, railWidth, railHeight);
     
-    // Update and draw the cart and pendulum
-    cart.update();
-    pendulum.update(cart.middle, cart.speed);
-    ctx.save();
-    cart.draw(ctx);
-    pendulum.draw(ctx);
-    ctx.restore();
-    requestAnimationFrame(animate);
+    // make transparent
+    ctx.globalAlpha = 0.2;
 
+    ctx.save();
+    // Update and draw the cart and pendulum
+    for (let i = 0; i < carts.length; i++) {
+        carts[i].update(i);
+        pendulums[i].update(carts[i].middle, carts[i].speed);
+        carts[i].draw(ctx);
+        pendulums[i].draw(ctx);
+        fitness(pendulums[i]);
+    }
+    carts[getBest()].draw(ctx, "blue");
+    pendulums[getBest()].draw(ctx, "blue");
+    ctx.restore();
+    
+    console.log(getBest());
+
+    requestAnimationFrame(animate);
 }

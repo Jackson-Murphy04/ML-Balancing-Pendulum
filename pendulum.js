@@ -15,6 +15,9 @@ class Pendulum {
         this.gravity = 1;
 
         this.acceleration = 0;
+
+        this.score = 0;
+        this.cross = 0;
     }
 
     update(middle, speed) {
@@ -45,10 +48,16 @@ class Pendulum {
         this.y = middle[0].y;
     }
 
-    draw(ctx) {
+    draw(ctx, color = "red") {
         ctx.lineWidth = 10;
-        ctx.fillStyle = "red";
-        ctx.strokeStyle = "green";
+        if (color == "blue") {
+            ctx.fillStyle = "blue";
+            ctx.strokeStyle = "blue";
+            ctx.globalAlpha = 1;
+        } else {
+            ctx.fillStyle = "red";
+            ctx.strokeStyle = "green";
+        }
         ctx.beginPath();
         ctx.moveTo(this.x, this.y);
         ctx.lineTo(this.bobX, this.bobY)
