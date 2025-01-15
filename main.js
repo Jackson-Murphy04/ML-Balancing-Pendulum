@@ -23,11 +23,35 @@ window.addEventListener("resize", () => {
     ctx.fillRect(canvas.width / 2 - railWidth / 2, canvas.height / 2 - railHeight / 2, railWidth, railHeight);
 });
 
-//initialize pendulum cart
-//const cart = new Cart(canvas.width / 2 - railWidth * 0.1 / 2, railTop - railHeight * 0.25, railWidth * 0.1, railHeight * 1.5, railMin, railMax, "AI");
+let count = 0;
+//add function for start and stoping of sim
+let isAnimating = false;
+let animationFrameId;
+function startSim() {
+    if (!isAnimating) {
+        isAnimating = true;
+        if (count == 60) {
+            final();
+        } else {
+            startTimer();
+            animate();
+        }
+        count++;
+    }
+}
 
-//initialize pendulum
-//const pendulum = new Pendulum((canvas.height / 2) * .6, (canvas.height / 2) * .6 * .1, canvas.width / 2, railTop + railHeight / 2, Math.PI / 4);
+//start timer function
+//define timer duration (60 seconds)
+let timerDuration = 6000;
+let timerId;
+function startTimer() {
+    if(timerId) {
+        clearTimeout(timerId);
+    }
+    timerId = setTimeout(() => {
+        stopSim();
+    }, timerDuration);
+}
 
 const carts = [];
 const pendulums = [];
@@ -44,17 +68,24 @@ function initCarts(total) {
 }
 
 function fitness(pendulum) {
+    // reward for being above
     if (pendulum.bobY < (canvas.height / 2)) {
         pendulum.score += (pendulum.bobY - canvas.height) * -1 * 10;
     }
+    // penalize for being below
+    if (pendulum.bobY > (canvas.height / 2)) {
+        pendulum.score -= 10;
+    }
+    // penalize for crossing to many times
     if (pendulum.bobY > (canvas.height / 2) - 10 && pendulum.bobY > (canvas.height / 2) + 10) {
         if (pendulum.score > 1000) {
-            pendulum.score -= pendulum.cross * 100;
+            pendulum.score -= pendulum.cross * 10;
             pendulum.cross += 1;
         }
-        if (pendulum.score < 0) {
-            pendulum.score = 100;
-        }
+    }
+    // penalize for not moving
+    if (pendulum.angleV == 0) {
+        score -= 100;
     }
 }
 
@@ -70,12 +101,72 @@ function getBest() {
     return index;
 }
 
-function restart(best) {
-    
+//declare mutation rate
+let mutationRate = 0.2;
+
+function stopSim() {
+    console.log("restart");
+    if (isAnimating) {
+        isAnimating = false;
+        cancelAnimationFrame(animationFrameId);
+
+        // save best
+        let bestBrain = JSON.parse(JSON.stringify(carts[getBest()].brain));
+
+        // Mutate network based on best brain
+        for (let i = 0; i < carts.length; i++) {
+            carts[i].reset();
+            pendulums[i].reset();
+        }
+
+        for (let i = 0; i < carts.length; i++) {
+            carts[i].brain = JSON.parse(JSON.stringify(bestBrain)); // Clone the best overall brain
+            if (i != 0) {
+                NeuralNetwork.mutate(carts[i].brain, mutationRate);
+            }
+        }
+
+        carts[0].brain = bestBrain;
+
+        // Add a small delay before restarting to ensure everything is reset
+        setTimeout(() => {
+            startSim();
+        }, 0);
+    }
+}
+
+function final() {
+    console.log("final");
+    if (isAnimating) {
+        isAnimating = false;
+        cancelAnimationFrame(animationFrameId);
+
+        // save best
+        let bestBrain = JSON.parse(JSON.stringify(carts[getBest()].brain));
+
+        // Mutate network based on best brain
+        for (let i = 0; i < carts.length; i++) {
+            carts[i].reset();
+            pendulums[i].reset();
+        }
+
+        carts[0].brain = bestBrain;
+        
+        carts.length = 1;
+        pendulums.length = 1;
+
+        // Clear the canvas and redraw the remaining cart and pendulum
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "black";
+        ctx.fillRect(railMin, railTop, railWidth, railHeight);
+
+        animate();
+    }
 }
 
 // Start the animation loop
-animate();
+//animate();
+startSim();
 function animate() {
     // Clear the entire canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -99,8 +190,6 @@ function animate() {
     carts[getBest()].draw(ctx, "blue");
     pendulums[getBest()].draw(ctx, "blue");
     ctx.restore();
-    
-    console.log(getBest());
 
     requestAnimationFrame(animate);
 }

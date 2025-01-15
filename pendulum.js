@@ -5,6 +5,8 @@ class Pendulum {
         this.radius = radius;
         this.x = x;
         this.y = y;
+        this.xOrigin = x;
+        this.yOrigin = y;
         this.angle = angle;
 
         this.angleV = 0;
@@ -46,6 +48,17 @@ class Pendulum {
 
         this.x = middle[0].x;
         this.y = middle[0].y;
+    }
+
+    reset() {
+        this.x = this.xOrigin;
+        this.y = this.yOrigin;
+        this.angleV = 0;
+        this.angleA = 0;
+        this.force = 0;
+        this.acceleration = 0;
+        this.score = 0;
+        this.cross = 0;
     }
 
     draw(ctx, color = "red") {

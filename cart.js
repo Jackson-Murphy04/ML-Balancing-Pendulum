@@ -5,6 +5,8 @@ class Cart {
         this.y = y;
         this.width = width;
         this.height = height;
+        this.xOrigin = x;
+        this.yOrigin = y;
 
         //basic movement attributes
         this.speed = 0;
@@ -32,6 +34,12 @@ class Cart {
             this.controls.left = outputs[0];
             this.controls.right = outputs[1];
         }
+    }
+
+    reset() {
+        this.x = this.xOrigin;
+        this.y = this.yOrigin;
+        this.speed = 0;
     }
 
     #move() {

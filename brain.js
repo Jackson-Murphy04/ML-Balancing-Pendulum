@@ -25,7 +25,7 @@ class NeuralNetwork {
         // for each level
         brain.levels.forEach(level => {
             // mutate each neuron bias
-            for (let i = 0; i < levels.biases.length; i++) {
+            for (let i = 0; i < level.biases.length; i++) {
                 level.biases[i] = lerp(level.biases[i], Math.random() * 2 - 1, amount);
             }
             // mutate each weight
